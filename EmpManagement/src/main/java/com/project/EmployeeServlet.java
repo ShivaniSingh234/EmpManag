@@ -20,9 +20,24 @@ public class EmployeeServlet extends HttpServlet {
             String dept = request.getParameter("department");
             employees.add(new Employee(id, name, dept));
             response.sendRedirect("employee?action=view");
-        } else if ("delete".equals(action)) {
+        } 
+        else if ("delete".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             employees.removeIf(e -> e.getId() == id);
+            response.sendRedirect("employee?action=view");
+        } 
+        else if ("update".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            String name = request.getParameter("name");
+            String dept = request.getParameter("department");
+
+            for (Employee e : employees) {
+                if (e.getId() == id) {
+                    e.setName(name);
+                    e.setDepartment(dept);
+                    break;
+                }
+            }
             response.sendRedirect("employee?action=view");
         }
     }
@@ -33,7 +48,7 @@ public class EmployeeServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         if ("view".equals(action)) {
-            // ✅ Improved UI for Employee List
+            // for Employee List
             out.println("<!DOCTYPE html><html><head><title>Employee List</title>");
             out.println("<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'>");
             out.println("<style>");
@@ -74,8 +89,37 @@ public class EmployeeServlet extends HttpServlet {
             out.println("</div>");
             out.println("</div></div></body></html>");
         }
-        // ... keep the edit and default logic here
-    }
+        else if ("edit".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            Employee emp = null;
+            for (Employee e : employees) {
+                if (e.getId() == id) {
+                    emp = e;
+                    break;
+                }
+            }
 
+            if (emp != null) {
+                out.println("<!DOCTYPE html><html><head><title>Edit Employee</title>");
+                out.println("<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'>");
+                out.println("</head><body class='bg-light'><div class='container mt-5'>");
+                out.println("<h2 class='mb-4'>Edit Employee</h2>");
+                out.println("<form action='employee' method='post' class='card p-4 shadow'>");
+                out.println("<div class='mb-3'><label class='form-label'>Employee ID</label>");
+                out.println("<input type='text' name='id' value='" + emp.getId() + "' class='form-control' readonly></div>");
+                out.println("<div class='mb-3'><label class='form-label'>Name</label>");
+                out.println("<input type='text' name='name' value='" + emp.getName() + "' class='form-control' required></div>");
+                out.println("<div class='mb-3'><label class='form-label'>Department</label>");
+                out.println("<input type='text' name='department' value='" + emp.getDepartment() + "' class='form-control' required></div>");
+                out.println("<input type='hidden' name='action' value='update'>");
+                out.println("<button type='submit' class='btn btn-success w-100'>Update Employee</button>");
+                out.println("</form>");
+                out.println("<a href='employee?action=view' class='btn btn-secondary mt-3'>Back</a>");
+                out.println("</div></body></html>");
+            }
+        }
+        else {
+            response.sendRedirect("index.html");
+        }
+    }
 }
-    
